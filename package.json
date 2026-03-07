@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start -p 3003",
     "server": "node server.js",
-    "full": "node server.js & next start -p 3003",
+    "full": "node start.js",
     "lint": "next lint"
   },
   "dependencies": {
