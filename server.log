@@ -1,0 +1,8 @@
+✅ Connected to Supabase
+Note: Database init error (may need manual setup): Could not find the function public.exec_sql(sql) in the schema cache
+🧠 ChromaBrain API running on port 3457
+   Health: http://localhost:3457/health
+   Search: http://localhost:3457/api/search
+   Sources: http://localhost:3457/api/sources
+Embedding error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+Search error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
