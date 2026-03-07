@@ -2,6 +2,10 @@ require('dotenv').config();
 
 module.exports = {
   port: process.env.PORT || 3456,
+  chromabase: {
+    url: process.env.CHROMABASE_URL || 'http://127.0.0.1:3000',
+    userId: process.env.CHROMABASE_USER_ID || 'fHDkOch2t7XEtGljr2DsHhBOYPU2'
+  },
   supabase: {
     url: process.env.SUPABASE_URL || '',
     apiKey: process.env.SUPABASE_API_KEY || ''

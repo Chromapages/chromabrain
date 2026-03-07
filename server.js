@@ -6,6 +6,8 @@ const { getEmbedding } = require('./embeddings');
 const { indexAll, getFilesToIndex } = require('./indexer');
 
 const app = express();
+let chromabaseCache = null;
+let lastSyncTime = null;
 
 app.use(cors());
 app.use(express.json());
@@ -99,6 +101,88 @@ app.get('/api/sources', async (req, res) => {
   }
 });
 
+// ChromaBase Sync Endpoint
+app.get('/api/sync/chromabase', async (req, res) => {
+  try {
+    const { url, userId } = config.chromabase;
+    const syncUrl = `${url}/api/sync?userId=${userId}`;
+    
+    const response = await fetch(syncUrl);
+    if (!response.ok) {
+      throw new Error(`ChromaBase sync failed: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    chromabaseCache = data.data;
+    lastSyncTime = new Date().toISOString();
+    
+    // Also index key data into ChromaBrain
+    if (data.data && data.data.tasks) {
+      const taskChunks = data.data.tasks.map(task => ({
+        document_id: `chromabase_task_${task.id}`,
+        title: `Task: ${task.title}`,
+        content: `Task: ${task.title}\nStatus: ${task.status}\nPriority: ${task.priority}\nDescription: ${task.description || ''}\nDue Date: ${task.dueDate ? new Date(task.dueDate).toISOString() : 'N/A'}`,
+        source: 'chromabase_tasks'
+      }));
+      
+      // Insert into ChromaBrain
+      try {
+        const client = await getClient();
+        for (const chunk of taskChunks.slice(0, 10)) { // Limit to avoid too many
+          await client.from('chromabrain_chunks').upsert({
+            document_id: chunk.document_id,
+            title: chunk.title,
+            content: chunk.content,
+            source: chunk.source,
+            embedding: await getEmbedding(chunk.content)
+          }, { onConflict: 'document_id' });
+        }
+      } catch (e) {
+        console.warn('Could not index tasks:', e.message);
+      }
+    }
+    
+    res.json({
+      success: true,
+      synced: {
+        clients: data.data.clients?.length || 0,
+        leads: data.data.leads?.length || 0,
+        tasks: data.data.tasks?.length || 0,
+        activities: data.data.activities?.length || 0
+      },
+      lastSync: lastSyncTime
+    });
+  } catch (error) {
+    console.error('Sync error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get cached ChromaBase data
+app.get('/api/chromabase', (req, res) => {
+  res.json({
+    data: chromabaseCache,
+    lastSync: lastSyncTime
+  });
+});
+
+// Heartbeat: sync on startup
+async function heartbeat() {
+  try {
+    console.log('❤️ ChromaBase Heartbeat: Syncing...');
+    const { url, userId } = config.chromabase;
+    const response = await fetch(`${url}/api/sync?userId=${userId}`);
+    if (response.ok) {
+      const data = await response.json();
+      chromabaseCache = data.data;
+      lastSyncTime = new Date().toISOString();
+      console.log(`❤️ ChromaBase Heartbeat: Synced ${data.data.tasks?.length || 0} tasks, ${data.data.clients?.length || 0} clients`);
+    }
+  } catch (error) {
+    console.error('❤️ ChromaBase Heartbeat failed:', error.message);
+  }
+}
+
 // Start server
 async function start() {
   try {
@@ -108,11 +192,18 @@ async function start() {
     // Initialize database tables
     await initDatabase();
     
+    // Run initial ChromaBase sync (heartbeat)
+    await heartbeat();
+    
+    // Set up periodic sync every hour
+    setInterval(heartbeat, 60 * 60 * 1000);
+    
     app.listen(config.port, '0.0.0.0', () => {
       console.log(`🧠 ChromaBrain API running on port ${config.port}`);
-      console.log(`   Health: http://0.0.0.0:${config.port}/health`);
       console.log(`   Search: http://0.0.0.0:${config.port}/api/search`);
       console.log(`   Sources: http://0.0.0.0:${config.port}/api/sources`);
+      console.log(`   ChromaBase Sync: http://0.0.0.0:${config.port}/api/sync/chromabase`);
+      console.log(`   ChromaBase Data: http://0.0.0.0:${config.port}/api/chromabase`);
     });
   } catch (error) {
     console.error('Failed to start server:', error.message);
