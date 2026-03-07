@@ -108,11 +108,11 @@ async function start() {
     // Initialize database tables
     await initDatabase();
     
-    app.listen(config.port, () => {
+    app.listen(config.port, '0.0.0.0', () => {
       console.log(`🧠 ChromaBrain API running on port ${config.port}`);
-      console.log(`   Health: http://localhost:${config.port}/health`);
-      console.log(`   Search: http://localhost:${config.port}/api/search`);
-      console.log(`   Sources: http://localhost:${config.port}/api/sources`);
+      console.log(`   Health: http://0.0.0.0:${config.port}/health`);
+      console.log(`   Search: http://0.0.0.0:${config.port}/api/search`);
+      console.log(`   Sources: http://0.0.0.0:${config.port}/api/sources`);
     });
   } catch (error) {
     console.error('Failed to start server:', error.message);
