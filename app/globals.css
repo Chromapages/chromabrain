@@ -1,118 +1,50 @@
 @import "tailwindcss";
 
+/* Swiss Modernism 2.0 Design System */
 @theme {
-  --color-zinc-50: #fafafa;
-  --color-zinc-100: #f4f4f5;
-  --color-zinc-200: #e4e4e7;
-  --color-zinc-300: #d4d4d8;
-  --color-zinc-400: #a1a1aa;
-  --color-zinc-500: #71717a;
-  --color-zinc-600: #52525b;
-  --color-zinc-700: #3f3f46;
-  --color-zinc-800: #27272a;
-  --color-zinc-900: #18181b;
-  --color-zinc-950: #09090b;
-  --color-emerald-50: #ecfdf5;
-  --color-emerald-100: #d1fae5;
-  --color-emerald-500: #10b981;
-  --color-emerald-600: #059669;
-  --color-emerald-700: #047857;
-  --color-amber-100: #fef3c7;
-  --color-amber-500: #f59e0b;
-  --color-amber-600: #d97706;
-  --color-red-50: #fef2f2;
-  --color-red-100: #fee2e2;
-  --color-red-500: #ef4444;
-  --color-red-600: #dc2626;
-  --color-red-700: #b91c1c;
+  /* Neutral palette - stark, high contrast */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f7f7f7;
+  --color-neutral-100: #e8e8e8;
+  --color-neutral-200: #d1d1d1;
+  --color-neutral-300: #b0b0b0;
+  --color-neutral-400: #7a7a7a;
+  --color-neutral-500: #525252;
+  --color-neutral-600: #3d3d3d;
+  --color-neutral-700: #2a2a2a;
+  --color-neutral-800: #1a1a1a;
+  --color-neutral-900: #0a0a0a;
+  --color-neutral-950: #000000;
+
+  /* Accent - International Orange (classic Swiss) */
+  --color-swiss-orange: #ff3b30;
+  --color-swiss-orange-light: #ff6b5b;
+  --color-swiss-orange-dark: #cc2f26;
+
+  /* Functional colors */
+  --color-success: #34c759;
+  --color-warning: #ffcc00;
+  --color-error: #ff3b30;
+
+  /* Map to semantic names */
+  --color-zinc-50: var(--color-neutral-50);
+  --color-zinc-100: var(--color-neutral-100);
+  --color-zinc-200: var(--color-neutral-200);
+  --color-zinc-300: var(--color-neutral-300);
+  --color-zinc-400: var(--color-neutral-400);
+  --color-zinc-500: var(--color-neutral-500);
+  --color-zinc-600: var(--color-neutral-600);
+  --color-zinc-700: var(--color-neutral-700);
+  --color-zinc-800: var(--color-neutral-800);
+  --color-zinc-900: var(--color-neutral-900);
+  --color-zinc-950: var(--color-neutral-950);
+
+  --color-emerald-500: var(--color-success);
+  --color-amber-500: var(--color-warning);
+  --color-red-500: var(--color-error);
 }
 
-/* Skeleton shimmer animation */
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-/* Toast slide-in */
-@keyframes toast-in {
-  0% {
-    opacity: 0;
-    transform: translateY(1rem) scale(0.96);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Toast slide-out */
-@keyframes toast-out {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(1rem) scale(0.96);
-  }
-}
-
-/* Staggered entry */
-@keyframes fade-up {
-  0% {
-    opacity: 0;
-    transform: translateY(0.75rem);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Amber pulse for indexing badge */
-@keyframes pulse-amber {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
-
-.skeleton-shimmer {
-  background: linear-gradient(
-    90deg,
-    var(--color-zinc-100) 25%,
-    var(--color-zinc-200) 50%,
-    var(--color-zinc-100) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-
-.toast-enter {
-  animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.toast-exit {
-  animation: toast-out 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.fade-up {
-  animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  opacity: 0;
-}
-
-.pulse-amber {
-  animation: pulse-amber 1.5s ease-in-out infinite;
-}
-
-/* Global resets */
+/* Base styles - Swiss minimal */
 html {
   scroll-behavior: smooth;
 }
@@ -120,11 +52,111 @@ html {
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-neutral-0);
+  color: var(--color-neutral-900);
 }
 
-/* Focus ring utility */
+/* Typography - Neo-Grotesque */
+.swiss-heading {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.swiss-body {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+/* Grid overlay for alignment */
+.swiss-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+/* Animations - Minimal, purposeful */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes toast-in {
+  0% { opacity: 0; transform: translateY(0.5rem); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toast-out {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(0.5rem); }
+}
+
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(0.5rem); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-indicator {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Utility classes */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-neutral-100) 25%,
+    var(--color-neutral-200) 50%,
+    var(--color-neutral-100) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.toast-enter {
+  animation: toast-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast-exit {
+  animation: toast-out 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.fade-up {
+  animation: fade-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.pulse-indicator {
+  animation: pulse-indicator 1.5s ease-in-out infinite;
+}
+
+/* Focus states - Minimal ring */
 *:focus-visible {
-  outline: 2px solid var(--color-emerald-500);
+  outline: 2px solid var(--color-swiss-orange);
   outline-offset: 2px;
-  border-radius: 0.375rem;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-swiss-orange);
+  color: var(--color-neutral-0);
+}
+
+/* Scrollbar - Minimal */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-neutral-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-300);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
 }

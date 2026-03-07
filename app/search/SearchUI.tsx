@@ -249,15 +249,15 @@ export default function SearchUI() {
   // ── Render ───────────────────────────────────────────────────────
 
   return (
-    <main className="min-h-[100dvh] bg-zinc-50">
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:pl-[8vw] lg:pr-8 py-8 md:py-12">
+    <main className="min-h-[100dvh] bg-white">
+      <div className="max-w-[900px] mx-auto px-6 py-12 md:py-20">
         {/* ── Header ──────────────────────────────────────────── */}
-        <header className="flex items-start justify-between gap-4 mb-10 md:mb-14">
+        <header className="flex items-start justify-between gap-6 mb-12 md:mb-16">
           <div>
-            <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-zinc-900">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-neutral-900 swiss-heading">
               ChromaBrain
             </h1>
-            <p className="text-sm text-zinc-500 mt-1">
+            <p className="text-sm text-neutral-500 mt-2 font-normal">
               Unified knowledge search
             </p>
           </div>
@@ -265,47 +265,45 @@ export default function SearchUI() {
             onClick={handleReindex}
             disabled={state.indexing}
             className="relative flex items-center gap-2 px-4 py-2.5 text-sm font-medium
-                       rounded-xl border border-zinc-200 bg-white text-zinc-700
-                       transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
-                       hover:bg-zinc-100 hover:border-zinc-300
-                       active:scale-[0.98]
-                       disabled:opacity-60 disabled:cursor-not-allowed
-                       focus-visible:outline-2 focus-visible:outline-emerald-500
-                       focus-visible:outline-offset-2
+                       rounded-none border border-neutral-300 bg-white text-neutral-700
+                       transition-all duration-150 ease-out
+                       hover:bg-neutral-900 hover:text-white hover:border-neutral-900
+                       active:translate-y-[1px]
+                       disabled:opacity-50 disabled:cursor-not-allowed
+                       focus-visible:outline-2 focus-visible:outline-offset-2
                        min-h-[44px] cursor-pointer"
             aria-label="Reindex all knowledge files"
           >
             <ArrowClockwise
-              size={18}
+              size={16}
               weight="bold"
               className={state.indexing ? "animate-spin" : ""}
             />
-            <span className="hidden sm:inline">Reindex all</span>
+            <span>Reindex</span>
             {state.indexing && (
               <span
-                className="absolute -top-2 -right-2 px-2 py-0.5 text-[11px] font-semibold
-                           rounded-full bg-amber-100 text-amber-600 border border-amber-200
-                           pulse-amber"
+                className="absolute -top-2 -right-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider
+                           bg-swiss-orange text-white"
               >
-                Indexing...
+                Indexing
               </span>
             )}
           </button>
         </header>
 
         {/* ── Search Input ────────────────────────────────────── */}
-        <section className="mb-8 md:mb-10 max-w-2xl">
+        <section className="mb-10">
           <label
             htmlFor="search-input"
-            className="block text-sm font-medium text-zinc-600 mb-2"
+            className="block text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-3"
           >
-            Search your knowledge base
+            Search
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
               {state.status === "loading" ? (
                 <div
-                  className="w-5 h-5 border-2 border-zinc-300 border-t-emerald-500 rounded-full animate-spin"
+                  className="w-4 h-4 border-2 border-neutral-300 border-t-swiss-orange animate-spin"
                   role="status"
                   aria-label="Searching"
                 />
@@ -313,7 +311,7 @@ export default function SearchUI() {
                 <MagnifyingGlass
                   size={20}
                   weight="regular"
-                  className="text-zinc-400"
+                  className="text-neutral-400"
                 />
               )}
             </div>
@@ -323,32 +321,29 @@ export default function SearchUI() {
               type="search"
               value={state.query}
               onChange={handleQueryChange}
-              placeholder="Type to search across all files..."
+              placeholder="Type to search..."
               autoComplete="off"
-              className="w-full pl-12 pr-12 py-3.5 text-base
-                         bg-white border border-zinc-200 rounded-xl
-                         text-zinc-900 placeholder:text-zinc-400
-                         transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
-                         focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500
-                         hover:border-zinc-300"
+              className="w-full pl-12 pr-12 py-4 text-lg
+                         bg-white border-2 border-neutral-200 border-b-neutral-400
+                         text-neutral-900 placeholder:text-neutral-300
+                         transition-all duration-150
+                         focus:outline-none focus:border-neutral-900 focus:border-b-neutral-900
+                         rounded-none"
               aria-describedby="search-hint"
             />
             {state.query && (
               <button
                 onClick={handleClear}
                 className="absolute inset-y-0 right-0 flex items-center pr-4
-                           text-zinc-400 hover:text-zinc-600
+                           text-neutral-400 hover:text-neutral-900
                            transition-colors duration-150
                            min-w-[44px] justify-center cursor-pointer"
                 aria-label="Clear search"
               >
-                <X size={18} weight="bold" />
+                <X size={16} weight="bold" />
               </button>
             )}
           </div>
-          <p id="search-hint" className="text-xs text-zinc-400 mt-1.5">
-            Searches across MEMORY.md, agent files, daily logs, and project docs
-          </p>
         </section>
 
         {/* ── Results Region ──────────────────────────────────── */}
@@ -396,16 +391,12 @@ export default function SearchUI() {
 
 function IdleState() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 md:py-24 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-zinc-100 flex items-center justify-center mb-6">
-        <FileText size={32} weight="thin" className="text-zinc-400" />
+    <div className="flex flex-col items-center justify-center py-20 md:py-28 text-center">
+      <div className="w-20 h-20 border-2 border-neutral-200 flex items-center justify-center mb-8">
+        <FileText size={36} weight="thin" className="text-neutral-300" />
       </div>
-      <p className="text-lg font-medium text-zinc-400 tracking-tight">
-        Start typing to search your knowledge base
-      </p>
-      <p className="text-sm text-zinc-400/70 mt-2 max-w-[45ch]">
-        Searches across memory files, agent logs, preferences, and project
-        documentation
+      <p className="text-lg font-medium text-neutral-400 tracking-tight">
+        Start typing to search
       </p>
     </div>
   );
@@ -413,18 +404,18 @@ function IdleState() {
 
 function LoadingSkeletons() {
   return (
-    <div className="max-w-3xl space-y-0 divide-y divide-zinc-100" role="status">
+    <div className="max-w-3xl space-y-0 divide-y divide-neutral-100" role="status">
       <span className="sr-only">Loading search results</span>
       {[0, 1, 2].map((i) => (
-        <div key={i} className="py-5">
+        <div key={i} className="py-6">
           <div className="flex items-center justify-between mb-3">
-            <div className="skeleton-shimmer h-5 w-48 rounded-md" />
-            <div className="skeleton-shimmer h-5 w-14 rounded-md" />
+            <div className="skeleton-shimmer h-4 w-40" />
+            <div className="skeleton-shimmer h-4 w-12" />
           </div>
-          <div className="skeleton-shimmer h-3.5 w-36 rounded-md mb-3" />
+          <div className="skeleton-shimmer h-3 w-32 mb-3" />
           <div className="space-y-2">
-            <div className="skeleton-shimmer h-3.5 w-full rounded-md" />
-            <div className="skeleton-shimmer h-3.5 w-3/4 rounded-md" />
+            <div className="skeleton-shimmer h-3 w-full" />
+            <div className="skeleton-shimmer h-3 w-3/4" />
           </div>
         </div>
       ))}
@@ -441,10 +432,10 @@ interface ResultsListProps {
 function ResultsList({ results, expandedIndex, onToggle }: ResultsListProps) {
   return (
     <div className="max-w-3xl">
-      <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-4">
+      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-6">
         {results.length} result{results.length !== 1 ? "s" : ""}
       </p>
-      <div className="divide-y divide-zinc-100">
+      <div className="divide-y divide-neutral-200">
         {results.map((result, idx) => (
           <ResultItem
             key={`${result.source}-${idx}`}
@@ -475,25 +466,24 @@ function ResultItem({ result, index, isExpanded, onToggle }: ResultItemProps) {
 
   return (
     <div
-      className="py-5 fade-up"
-      style={{ animationDelay: `${index * 80}ms` }}
+      className="py-6 fade-up"
+      style={{ animationDelay: `${index * 60}ms` }}
     >
       {/* Title Row */}
-      <div className="flex items-start justify-between gap-3 mb-1.5">
-        <h3 className="text-base font-semibold text-zinc-900 leading-snug">
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <h3 className="text-base font-semibold text-neutral-900 leading-snug">
           {result.title}
         </h3>
         <span
           className="shrink-0 px-2 py-0.5 text-xs font-mono font-medium
-                     tabular-nums rounded-md bg-emerald-50 text-emerald-700
-                     border border-emerald-100"
+                     tabular-nums bg-neutral-100 text-neutral-600 border border-neutral-200"
         >
           {scorePercent}%
         </span>
       </div>
 
       {/* Source */}
-      <p className="text-xs text-zinc-400 font-mono mb-2.5" title={result.source}>
+      <p className="text-xs text-neutral-400 font-mono mb-3" title={result.source}>
         {truncatedSource}
       </p>
 
@@ -505,22 +495,22 @@ function ResultItem({ result, index, isExpanded, onToggle }: ResultItemProps) {
         aria-label={`${isExpanded ? "Collapse" : "Expand"} snippet for ${result.title}`}
       >
         <p
-          className={`text-sm text-zinc-600 leading-relaxed
-                      transition-all duration-200
+          className={`text-sm text-neutral-600 leading-relaxed
+                      transition-all duration-150
                       ${isExpanded ? "" : "line-clamp-2"}`}
         >
           {result.snippet}
         </p>
         <span
-          className="inline-flex items-center gap-1 mt-1.5 text-xs text-zinc-400
-                     group-hover:text-emerald-600 transition-colors duration-150"
+          className="inline-flex items-center gap-1 mt-2 text-xs text-neutral-400
+                     group-hover:text-swiss-orange transition-colors duration-150"
         >
           <CaretDown
             size={12}
             weight="bold"
             className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
           />
-          {isExpanded ? "Show less" : "Show more"}
+          {isExpanded ? "Less" : "More"}
         </span>
       </button>
     </div>
@@ -533,16 +523,9 @@ interface EmptyStateProps {
 
 function EmptyState({ query }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 md:py-20 text-center fade-up">
-      <div className="w-14 h-14 rounded-2xl bg-zinc-100 flex items-center justify-center mb-5">
-        <MagnifyingGlass size={28} weight="thin" className="text-zinc-400" />
-      </div>
-      <p className="text-base font-medium text-zinc-500">
-        No results found for &ldquo;
-        <span className="text-zinc-700">{query}</span>&rdquo;
-      </p>
-      <p className="text-sm text-zinc-400 mt-2 max-w-[40ch]">
-        Try different keywords or run a reindex to pick up new files
+    <div className="flex flex-col items-center justify-center py-20 md:py-24 text-center fade-up">
+      <p className="text-base font-medium text-neutral-500">
+        No results for &ldquo;<span className="text-neutral-900">{query}</span>&rdquo;
       </p>
     </div>
   );
@@ -556,28 +539,25 @@ interface ErrorBannerProps {
 function ErrorBanner({ message, onRetry }: ErrorBannerProps) {
   return (
     <div
-      className="max-w-3xl rounded-xl border border-red-200 bg-red-50 p-5 fade-up"
+      className="max-w-3xl border-l-4 border-swiss-orange bg-neutral-50 p-5 fade-up"
       role="alert"
     >
       <div className="flex items-start gap-3">
         <WarningCircle
-          size={22}
+          size={20}
           weight="fill"
-          className="text-red-500 shrink-0 mt-0.5"
+          className="text-swiss-orange shrink-0 mt-0.5"
         />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-red-800">
+          <p className="text-sm font-medium text-neutral-900">
             {message || "Could not reach ChromaBrain API"}
-          </p>
-          <p className="text-xs text-red-600/70 mt-1">
-            Check that the backend is running and NEXT_PUBLIC_API_URL is correct
           </p>
         </div>
         <button
           onClick={onRetry}
-          className="shrink-0 px-3.5 py-2 text-sm font-medium
-                     rounded-lg bg-white border border-red-200 text-red-700
-                     hover:bg-red-100 active:scale-[0.98]
+          className="shrink-0 px-4 py-2 text-sm font-medium
+                     bg-neutral-900 text-white
+                     hover:bg-neutral-700 active:translate-y-[1px]
                      transition-all duration-150
                      min-h-[44px] cursor-pointer"
         >
@@ -599,34 +579,26 @@ function Toast({ message, type, onDismiss }: ToastProps) {
 
   return (
     <div
-      className="fixed bottom-6 right-6 left-6 sm:left-auto sm:min-w-[320px] sm:max-w-[420px] z-40"
+      className="fixed bottom-6 right-6 left-6 sm:left-auto sm:min-w-[280px] sm:max-w-[360px] z-40"
       role="status"
       aria-live="polite"
     >
       <div
-        className={`toast-enter flex items-center gap-3 px-4 py-3.5
-                    rounded-xl border shadow-lg
-                    ${
-                      isSuccess
-                        ? "bg-white border-emerald-200 shadow-emerald-500/5"
-                        : "bg-white border-red-200 shadow-red-500/5"
-                    }`}
+        className={`toast-enter flex items-center gap-3 px-4 py-3
+                    border border-neutral-200 bg-white
+                    ${isSuccess ? "border-l-4 border-l-success" : "border-l-4 border-l-swiss-orange"}`}
       >
         {isSuccess ? (
-          <CheckCircle size={20} weight="fill" className="text-emerald-500 shrink-0" />
+          <CheckCircle size={18} weight="fill" className="text-success shrink-0" />
         ) : (
-          <WarningCircle size={20} weight="fill" className="text-red-500 shrink-0" />
+          <WarningCircle size={18} weight="fill" className="text-swiss-orange shrink-0" />
         )}
-        <p
-          className={`text-sm font-medium flex-1 ${
-            isSuccess ? "text-emerald-800" : "text-red-800"
-          }`}
-        >
+        <p className="text-sm font-medium text-neutral-900 flex-1">
           {message}
         </p>
         <button
           onClick={onDismiss}
-          className="text-zinc-400 hover:text-zinc-600 transition-colors
+          className="text-neutral-400 hover:text-neutral-900 transition-colors
                      min-w-[32px] min-h-[32px] flex items-center justify-center cursor-pointer"
           aria-label="Dismiss notification"
         >
