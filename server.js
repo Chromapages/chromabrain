@@ -168,7 +168,7 @@ app.post('/api/index/folder', async (req, res) => {
   }
 });
 
-// Index from Google Drive folder
+// Index from Google Drive folder using rclone
 app.post('/api/index/drive', async (req, res) => {
   try {
     const { driveFolderId, metadata } = req.body;
@@ -179,12 +179,12 @@ app.post('/api/index/drive', async (req, res) => {
     
     console.log(`📥 Indexing from Google Drive folder: ${driveFolderId}`);
     
-    // Use gog CLI to list files in the Drive folder
+    // Use rclone to list files in the Drive folder
     const { execSync } = require('child_process');
     
     let files;
     try {
-      const output = execSync(`gog drive ls --parent ${driveFolderId} -j`, { encoding: 'utf-8' });
+      const output = execSync(`rclone lsjson drive: --drive-root-folder-id=${driveFolderId} -R`, { encoding: 'utf-8' });
       files = JSON.parse(output);
     } catch (e) {
       return res.status(500).json({ error: 'Failed to list Drive files: ' + e.message });
@@ -201,19 +201,19 @@ app.post('/api/index/drive', async (req, res) => {
     require('fs').mkdirSync(tempDir, { recursive: true });
     
     for (const file of files) {
-      if (file.type !== 'file') continue;
+      if (file.IsDir) continue;
       
       // Skip binary files
-      const ext = file.name.split('.').pop()?.toLowerCase();
+      const ext = file.Name.split('.').pop()?.toLowerCase();
       if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'ico', 'zip', 'pdf'].includes(ext)) {
-        console.log(`Skipping binary: ${file.name}`);
+        console.log(`Skipping binary: ${file.Name}`);
         continue;
       }
       
       try {
         // Download file to temp
-        const tempPath = `${tempDir}/${file.name}`;
-        execSync(`gog drive download "${file.id}" --output "${tempPath}"`, { stdio: 'pipe' });
+        const tempPath = `${tempDir}/${file.Name}`;
+        execSync(`rclone copy "drive:${file.Path}" "${tempDir}"`, { stdio: 'pipe' });
         
         // Read content
         const content = require('fs').readFileSync(tempPath, 'utf-8');
@@ -232,16 +232,16 @@ app.post('/api/index/drive', async (req, res) => {
         }
         
         if (chunkObjects.length > 0) {
-          await insertChunks(file.name, chunkObjects);
+          await insertChunks(file.Name, chunkObjects);
         }
         
         indexedCount++;
-        console.log(`Indexed ${file.name}: ${chunks.length} chunks`);
+        console.log(`Indexed ${file.Name}: ${chunks.length} chunks`);
         
         // Clean up temp file
         require('fs').unlinkSync(tempPath);
       } catch (fileError) {
-        console.error(`Error indexing ${file.name}:`, fileError.message);
+        console.error(`Error indexing ${file.Name}:`, fileError.message);
       }
     }
     
