@@ -91,6 +91,79 @@ app.post('/api/index/all', async (req, res) => {
   }
 });
 
+// Index a specific folder (for pipeline outputs)
+app.post('/api/index/folder', async (req, res) => {
+  try {
+    const { folder, metadata } = req.body;
+    
+    if (!folder) {
+      return res.status(400).json({ error: 'folder is required' });
+    }
+    
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Check if folder exists
+    if (!fs.existsSync(folder)) {
+      return res.status(404).json({ error: 'Folder not found', folder });
+    }
+    
+    // Read all files in folder
+    const files = fs.readdirSync(folder);
+    let indexedCount = 0;
+    let chunksIndexed = 0;
+    
+    for (const file of files) {
+      const filePath = path.join(folder, file);
+      const stat = fs.statSync(filePath);
+      
+      // Skip directories
+      if (stat.isDirectory()) continue;
+      
+      // Skip binary files (images, etc)
+      const ext = path.extname(file).toLowerCase();
+      if (['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.zip', '.pdf'].includes(ext)) {
+        console.log(`Skipping binary file: ${file}`);
+        continue;
+      }
+      
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        
+        // Split content into chunks (simple chunking by paragraphs/lines)
+        const chunks = content.split(/\n\n+/).filter(c => c.trim().length > 10);
+        
+        for (const chunk of chunks) {
+          const embedding = await getEmbedding(chunk);
+          await insertChunks(file, chunk, embedding, {
+            ...metadata,
+            source: 'ahm-pipeline',
+            indexedAt: new Date().toISOString()
+          });
+          chunksIndexed++;
+        }
+        
+        indexedCount++;
+        console.log(`Indexed ${file}: ${chunks.length} chunks`);
+      } catch (fileError) {
+        console.error(`Error indexing ${file}:`, fileError.message);
+      }
+    }
+    
+    res.json({
+      success: true,
+      filesIndexed: indexedCount,
+      totalChunks: chunksIndexed,
+      folder,
+      metadata,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Index folder error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // List indexed sources
 app.get('/api/sources', async (req, res) => {
   try {
