@@ -133,14 +133,18 @@ app.post('/api/index/folder', async (req, res) => {
         // Split content into chunks (simple chunking by paragraphs/lines)
         const chunks = content.split(/\n\n+/).filter(c => c.trim().length > 10);
         
+        const chunkObjects = [];
         for (const chunk of chunks) {
           const embedding = await getEmbedding(chunk);
-          await insertChunks(file, chunk, embedding, {
-            ...metadata,
-            source: 'ahm-pipeline',
-            indexedAt: new Date().toISOString()
+          chunkObjects.push({
+            content: chunk,
+            embedding: embedding
           });
           chunksIndexed++;
+        }
+        
+        if (chunkObjects.length > 0) {
+          await insertChunks(file, chunkObjects);
         }
         
         indexedCount++;
@@ -217,15 +221,18 @@ app.post('/api/index/drive', async (req, res) => {
         // Split into chunks
         const chunks = content.split(/\n\n+/).filter(c => c.trim().length > 10);
         
+        const chunkObjects = [];
         for (const chunk of chunks) {
           const embedding = await getEmbedding(chunk);
-          await insertChunks(file.name, chunk, embedding, {
-            ...metadata,
-            source: 'ahm-pipeline',
-            driveFileId: file.id,
-            indexedAt: new Date().toISOString()
+          chunkObjects.push({
+            content: chunk,
+            embedding: embedding
           });
           chunksIndexed++;
+        }
+        
+        if (chunkObjects.length > 0) {
+          await insertChunks(file.name, chunkObjects);
         }
         
         indexedCount++;
