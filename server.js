@@ -164,6 +164,97 @@ app.post('/api/index/folder', async (req, res) => {
   }
 });
 
+// Index from Google Drive folder
+app.post('/api/index/drive', async (req, res) => {
+  try {
+    const { driveFolderId, metadata } = req.body;
+    
+    if (!driveFolderId) {
+      return res.status(400).json({ error: 'driveFolderId is required' });
+    }
+    
+    console.log(`📥 Indexing from Google Drive folder: ${driveFolderId}`);
+    
+    // Use gog CLI to list files in the Drive folder
+    const { execSync } = require('child_process');
+    
+    let files;
+    try {
+      const output = execSync(`gog drive ls --parent ${driveFolderId} -j`, { encoding: 'utf-8' });
+      files = JSON.parse(output);
+    } catch (e) {
+      return res.status(500).json({ error: 'Failed to list Drive files: ' + e.message });
+    }
+    
+    if (!files || files.length === 0) {
+      return res.json({ success: true, filesIndexed: 0, totalChunks: 0, message: 'No files in folder' });
+    }
+    
+    // Download and index each file
+    let indexedCount = 0;
+    let chunksIndexed = 0;
+    const tempDir = '/tmp/chromabrain_drive';
+    require('fs').mkdirSync(tempDir, { recursive: true });
+    
+    for (const file of files) {
+      if (file.type !== 'file') continue;
+      
+      // Skip binary files
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'ico', 'zip', 'pdf'].includes(ext)) {
+        console.log(`Skipping binary: ${file.name}`);
+        continue;
+      }
+      
+      try {
+        // Download file to temp
+        const tempPath = `${tempDir}/${file.name}`;
+        execSync(`gog drive download "${file.id}" --output "${tempPath}"`, { stdio: 'pipe' });
+        
+        // Read content
+        const content = require('fs').readFileSync(tempPath, 'utf-8');
+        
+        // Split into chunks
+        const chunks = content.split(/\n\n+/).filter(c => c.trim().length > 10);
+        
+        for (const chunk of chunks) {
+          const embedding = await getEmbedding(chunk);
+          await insertChunks(file.name, chunk, embedding, {
+            ...metadata,
+            source: 'ahm-pipeline',
+            driveFileId: file.id,
+            indexedAt: new Date().toISOString()
+          });
+          chunksIndexed++;
+        }
+        
+        indexedCount++;
+        console.log(`Indexed ${file.name}: ${chunks.length} chunks`);
+        
+        // Clean up temp file
+        require('fs').unlinkSync(tempPath);
+      } catch (fileError) {
+        console.error(`Error indexing ${file.name}:`, fileError.message);
+      }
+    }
+    
+    // Clean up temp dir
+    require('fs').rmSync(tempDir, { recursive: true });
+    
+    res.json({
+      success: true,
+      filesIndexed: indexedCount,
+      totalChunks: chunksIndexed,
+      driveFolderId,
+      metadata,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Index drive error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // List indexed sources
 app.get('/api/sources', async (req, res) => {
   try {
